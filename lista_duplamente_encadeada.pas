@@ -89,8 +89,33 @@ begin
   begin
     while node <> nil do // Corrigindo o operador de comparação
     begin 
-      WriteLn('Posicao -> ', cont, ' Valor = ', node^.data);
+      // WriteLn('Posicao -> ', cont, ' Valor = ', node^.data);
+      Write('[',node^.data,']');
       node := node^.next;
+      cont := cont + 1; // Corrigindo o operador de atribuição
+    end;
+  end;
+end;
+
+procedure PrintListEndBegin(list: PList);
+var 
+  node: PNode;
+  cont: Integer;
+begin
+  cont := 0; // Corrigindo o operador de atribuição
+  node := list^.last; 
+
+  if (list^.init = nil) and (list^.last = nil) then // Corrigindo as condições de comparação
+  begin
+    WriteLn('Lista vazia!');
+  end
+  else
+  begin
+    while node <> nil do // Corrigindo o operador de comparação
+    begin 
+      //WriteLn('Posicao -> ', cont, ' Valor = ', node^.data);
+      Write('[',node^.data,']');
+      node := node^.prev;
       cont := cont + 1; // Corrigindo o operador de atribuição
     end;
   end;
@@ -120,10 +145,19 @@ begin
       2: 
         begin 
           clrscr;
+          WriteLn('Imprimindo lista do primeiro ao ultimo elemento:');
           PrintListBeginEnd(list_global);
+          WriteLn();
           WriteLn('------------------------------------');
         end;
-      3: WriteLn('Você escolheu a Opção 3.');
+      3: 
+        begin 
+          clrscr;
+          WriteLn('Imprimindo lista do ultimo ao primeiro elemento:');
+          PrintListEndBegin(list_global);
+          WriteLn();
+          WriteLn('------------------------------------');
+        end;
       0: WriteLn('Saindo do programa...');
     else
       WriteLn('Opção inválida.');
