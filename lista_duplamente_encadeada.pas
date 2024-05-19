@@ -1,5 +1,8 @@
 program ListaDuplamenteEncadeada;
 
+uses
+  crt; // Importa a unidade crt para acesso às funções de controle de terminal
+
 type
   PNode = ^Node; // Define um tipo de ponteiro para um record Node
   Node = record
@@ -17,6 +20,8 @@ type
 
 var
   choice : Integer;
+  item_value: Integer;
+  list_global: PList;
 
 function CreateList(): PList;
 var
@@ -68,11 +73,35 @@ begin
   end;
 end;
 
+procedure PrintListBeginEnd(list: PList);
+var 
+  node: PNode;
+  cont: Integer;
 begin
+  cont := 0; // Corrigindo o operador de atribuição
+  node := list^.init; 
+
+  if (list^.init = nil) and (list^.last = nil) then // Corrigindo as condições de comparação
+  begin
+    WriteLn('Lista vazia!');
+  end
+  else
+  begin
+    while node <> nil do // Corrigindo o operador de comparação
+    begin 
+      WriteLn('Posicao -> ', cont, ' Valor = ', node^.data);
+      node := node^.next;
+      cont := cont + 1; // Corrigindo o operador de atribuição
+    end;
+  end;
+end;
+
+begin
+  list_global := CreateList(); // Criando a lista
 
   repeat // Trocando o loop while por repeat until
     WriteLn('Escolha uma opção:');
-    WriteLn('1 - Inserir um elemento na lista');
+    WriteLn('1 - Inserir um elemento na lista no inicio da fila');
     WriteLn('2 - Imprimir a lista do primeiro ao ultimo elemento');
     WriteLn('3 - Imprimir a lista do ultimo ao primeiro elemento');
     WriteLn('0 - Sair do programa'); // Adicionando uma opção para sair do programa
@@ -83,9 +112,17 @@ begin
     case choice of
       1:
         begin 
-          WriteLn('Você escolheu a Opção 1.');
+          clrscr;
+          WriteLn('Digite um numero:'); // Adicionando uma opção para sair do programa
+          ReadLn(item_value);
+          AddInBeginList(list_global, item_value);
         end;
-      2: WriteLn('Você escolheu a Opção 2.');
+      2: 
+        begin 
+          clrscr;
+          PrintListBeginEnd(list_global);
+          WriteLn('------------------------------------');
+        end;
       3: WriteLn('Você escolheu a Opção 3.');
       0: WriteLn('Saindo do programa...');
     else
