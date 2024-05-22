@@ -93,6 +93,36 @@ begin
   end;
 end;
 
+procedure RemoveBeginList(list: PList);
+var
+  auxNode: PNode;
+begin
+  if not IsEmptyList(list) then // Se a lista não estiver vazia
+  begin
+    auxNode := list^.init;
+    if list^.init = list^.last then // Se houver apenas um nó na lista
+    begin
+      list^.init := nil;
+      list^.last := nil;
+    end
+    else // Se houver mais de um nó na lista
+    begin
+      list^.init := auxNode^.next;
+      list^.init^.prev := nil;
+    end;
+    WriteLn('Elemento removido -> ', auxNode^.data);
+    list^.size := list^.size - 1;
+    WriteLn('Tamanho lista -> ', list^.size);
+    Dispose(auxNode);
+  end
+  else // Se a lista estiver vazia
+  begin
+    WriteLn('Lista vazia, impossível remover elemento!');
+  end;
+end;
+
+
+
 procedure PrintListBeginEnd(list: PList);
 var 
   node: PNode;
@@ -155,6 +185,7 @@ begin
     WriteLn('2 - Inserir um elemento na lista no final da fila');
     WriteLn('3 - Imprimir a lista do primeiro ao ultimo elemento');
     WriteLn('4 - Imprimir a lista do ultimo ao primeiro elemento');
+    WriteLn('5 - Removendo o elemento mais antigo da fila');
     WriteLn('0 - Sair do programa'); // Adicionando uma opção para sair do programa
     Write('Digite sua escolha: ');
     ReadLn(choice);
@@ -190,6 +221,14 @@ begin
           clrscr;
           WriteLn('Imprimindo lista do ultimo ao primeiro elemento:');
           PrintListEndBegin(list_global);
+          WriteLn();
+          WriteLn('------------------------------------');
+        end;
+      5: 
+        begin 
+          clrscr;
+          WriteLn('Removendo o elemento mais antigo:');
+          RemoveBeginList(list_global);
           WriteLn();
           WriteLn('------------------------------------');
         end;
