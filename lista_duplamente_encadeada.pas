@@ -73,6 +73,26 @@ begin
   end;
 end;
 
+procedure AddInEndList(list: PList; value: Integer);
+var 
+  newNode: PNode;
+begin
+  newNode := CreateNode(value);
+  if IsEmptyList(list) then // Se a lista estiver vazia
+  begin
+    list^.init := newNode; // O início da lista apontando para o primeiro nó
+    list^.last := newNode; // O final da lista apontando para o primeiro nó
+    list^.size := list^.size + 1; // Incrementando o tamanho da lista
+  end
+  else
+  begin
+    list^.last^.next := newNode;
+    newNode^.prev := list^.last;
+    list^.last := newNode;
+    list^.size := list^.size + 1; // Incrementando o tamanho da lista
+  end;
+end;
+
 procedure PrintListBeginEnd(list: PList);
 var 
   node: PNode;
@@ -87,13 +107,18 @@ begin
   end
   else
   begin
+    Write('L -> ');
     while node <> nil do // Corrigindo o operador de comparação
     begin 
       // WriteLn('Posicao -> ', cont, ' Valor = ', node^.data);
-      Write('[',node^.data,']');
+      // Write('[',node^.data,']');
+      Write(node^.data,' -> ');
       node := node^.next;
       cont := cont + 1; // Corrigindo o operador de atribuição
     end;
+    Write('NULL');
+    WriteLn();
+    WriteLn('Tamanho da lista: ', list^.size);
   end;
 end;
 
@@ -127,8 +152,9 @@ begin
   repeat // Trocando o loop while por repeat until
     WriteLn('Escolha uma opção:');
     WriteLn('1 - Inserir um elemento na lista no inicio da fila');
-    WriteLn('2 - Imprimir a lista do primeiro ao ultimo elemento');
-    WriteLn('3 - Imprimir a lista do ultimo ao primeiro elemento');
+    WriteLn('2 - Inserir um elemento na lista no final da fila');
+    WriteLn('3 - Imprimir a lista do primeiro ao ultimo elemento');
+    WriteLn('4 - Imprimir a lista do ultimo ao primeiro elemento');
     WriteLn('0 - Sair do programa'); // Adicionando uma opção para sair do programa
     Write('Digite sua escolha: ');
     ReadLn(choice);
@@ -138,11 +164,20 @@ begin
       1:
         begin 
           clrscr;
+          WriteLn('Inserindo um numero no inicio da lista:');
           WriteLn('Digite um numero:'); // Adicionando uma opção para sair do programa
           ReadLn(item_value);
           AddInBeginList(list_global, item_value);
         end;
-      2: 
+      2:
+        begin 
+          clrscr;
+          WriteLn('Inserindo um numero no final da lista:');
+          WriteLn('Digite um numero:'); // Adicionando uma opção para sair do programa
+          ReadLn(item_value);
+          AddInEndList(list_global, item_value);
+        end;
+      3: 
         begin 
           clrscr;
           WriteLn('Imprimindo lista do primeiro ao ultimo elemento:');
@@ -150,7 +185,7 @@ begin
           WriteLn();
           WriteLn('------------------------------------');
         end;
-      3: 
+      4: 
         begin 
           clrscr;
           WriteLn('Imprimindo lista do ultimo ao primeiro elemento:');
