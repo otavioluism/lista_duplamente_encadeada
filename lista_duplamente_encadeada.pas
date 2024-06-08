@@ -6,20 +6,21 @@ uses
 type
   PNode = ^Node; // Define um tipo de ponteiro para um record Node
   Node = record
+    priority: Boolean;
     data: Integer;
     prev: PNode;
     next: PNode;
   end;
 
   PList = ^List; // Define um tipo de ponteiro para um record List
-  List = record 
-    size: Integer; 
+  List = record
+    size: Integer;
     init: PNode;
     last: PNode;
-  end; 
+  end;
 
 var
-  choice : Integer;
+  choice: Integer;
   item_value: Integer;
   list_global: PList;
 
@@ -28,20 +29,21 @@ var
   newList: PList;
 begin
   New(newList); // Alocando memoria para o ponteiro newList
-  newList^.init := nil; // Acessando o valor begin e apontando para o incio da fila que é nula 
-  newList^.last := nil; 
+  newList^.init := nil; // Acessando o valor begin e apontando para o incio da fila que é nula
+  newList^.last := nil;
   newList^.size := 0;
   CreateList := newList;
 end;
 
-function CreateNode(value: Integer): PNode; // Criando uma funcao que retorna um ponteiro do tipo PNode
+function CreateNode(value: Integer; priority: Boolean): PNode; // Criando uma funcao que retorna um ponteiro do tipo PNode
 var
   newNode: PNode;
 begin
-  New(newNode); // funcao para alocar memoria 
+  New(newNode); // funcao para alocar memoria
   newNode^.prev := nil; // Acessando o valor prev e adicionando valor nulo
-  newNode^.next := nil; 
+  newNode^.next := nil;
   newNode^.data := value;
+  newNode^.priority := priority;
   CreateNode := newNode;
 end;
 
@@ -49,15 +51,15 @@ function IsEmptyList(list: PList): Boolean; // Corrigindo a declaração do tipo
 begin
   if list^.size = 0 then // Usando "=" para comparar igualdade
     IsEmptyList := True
-  else 
+  else
     IsEmptyList := False;
 end;
 
-procedure AddInBeginList(list: PList; value: Integer);
-var 
+procedure AddInBeginList(list: PList; value: Integer; priority: Boolean);
+var
   newNode: PNode;
 begin
-  newNode := CreateNode(value);
+  newNode := CreateNode(value, priority);
   if IsEmptyList(list) then // Se a lista estiver vazia
   begin
     list^.init := newNode; // O início da lista apontando para o primeiro nó
@@ -66,18 +68,18 @@ begin
   end
   else
   begin
-    newNode^.next := list^.init; // Novo o proximo apontara para o que o inicio da lista esta apontando (poderia adicionar fora da condiconal)
-    list^.init^.prev := newNode; // O no que estava sendo apontando pelo incio da lista anterior passa a a apontar ao novo nó criado no inicio
-    list^.init := newNode; // O início passa a apontar ao novo nó 
+    newNode^.next := list^.init; // Novo o proximo apontara para o que o inicio da lista esta apontando (poderia adicionar fora da condicional)
+    list^.init^.prev := newNode; // O no que estava sendo apontado pelo inicio da lista anterior passa a a apontar ao novo nó criado no inicio
+    list^.init := newNode; // O início passa a apontar ao novo nó
     list^.size := list^.size + 1; // Incrementando o tamanho da lista
   end;
 end;
 
-procedure AddInEndList(list: PList; value: Integer);
-var 
+procedure AddInEndList(list: PList; value: Integer; priority: Boolean);
+var
   newNode: PNode;
 begin
-  newNode := CreateNode(value);
+  newNode := CreateNode(value, priority);
   if IsEmptyList(list) then // Se a lista estiver vazia
   begin
     list^.init := newNode; // O início da lista apontando para o primeiro nó
@@ -90,6 +92,48 @@ begin
     newNode^.prev := list^.last;
     list^.last := newNode;
     list^.size := list^.size + 1; // Incrementando o tamanho da lista
+  end;
+end;
+
+procedure AddInListWithPriority(list: PList; value: Integer);
+var
+  newNode, auxNodePost, auxNode: PNode;
+  flagNodeOnlyPririty: Boolean;
+begin
+  newNode := CreateNode(value, True);
+  if IsEmptyList(list) then // Se a lista estiver vazia
+  begin
+    AddInBeginList(list, value, True);
+  end
+  else
+  begin
+    auxNode:= list^.last;
+    while (auxNode^.priority = True) and (auxNode^.prev <> nil) do
+    begin
+      auxNode:= auxNode^.prev;
+    end;
+    if list^.init^.priority = True then 
+    begin 
+      AddInBeginList(list, value, True);
+    end
+    else
+    begin 
+      if list^.last^.priority = False then
+      begin 
+        newNode^.prev := auxNode;
+        auxNode^.next := newNode;
+        list^.last := newNode;
+      end
+      else
+      begin 
+        auxNodePost := auxNode^.next;
+        newNode^.prev := auxNode;
+        newNode^.next := auxNodePost;
+        auxNodePost^.prev := newNode;
+        auxNode^.next := newNode;
+      end;
+      list^.size := list^.size + 1;
+    end;
   end;
 end;
 
@@ -121,15 +165,13 @@ begin
   end;
 end;
 
-
-
 procedure PrintListBeginEnd(list: PList);
-var 
+var
   node: PNode;
   cont: Integer;
 begin
   cont := 0; // Corrigindo o operador de atribuição
-  node := list^.init; 
+  node := list^.init;
 
   if (list^.init = nil) and (list^.last = nil) then // Corrigindo as condições de comparação
   begin
@@ -139,10 +181,8 @@ begin
   begin
     Write('L -> ');
     while node <> nil do // Corrigindo o operador de comparação
-    begin 
-      // WriteLn('Posicao -> ', cont, ' Valor = ', node^.data);
-      // Write('[',node^.data,']');
-      Write(node^.data,' -> ');
+    begin
+      Write(node^.data, ' -> ');
       node := node^.next;
       cont := cont + 1; // Corrigindo o operador de atribuição
     end;
@@ -153,12 +193,12 @@ begin
 end;
 
 procedure PrintListEndBegin(list: PList);
-var 
+var
   node: PNode;
   cont: Integer;
 begin
   cont := 0; // Corrigindo o operador de atribuição
-  node := list^.last; 
+  node := list^.last;
 
   if (list^.init = nil) and (list^.last = nil) then // Corrigindo as condições de comparação
   begin
@@ -167,13 +207,26 @@ begin
   else
   begin
     while node <> nil do // Corrigindo o operador de comparação
-    begin 
-      //WriteLn('Posicao -> ', cont, ' Valor = ', node^.data);
-      Write('[',node^.data,']');
+    begin
+      Write('[', node^.data, ']');
       node := node^.prev;
       cont := cont + 1; // Corrigindo o operador de atribuição
     end;
   end;
+end;
+
+procedure FreeList(var list: PList);
+var
+  current, temp: PNode;
+begin
+  current := list^.init;
+  while current <> nil do
+  begin
+    temp := current;
+    current := current^.next;
+    Dispose(temp);
+  end;
+  Dispose(list);
 end;
 
 begin
@@ -186,6 +239,7 @@ begin
     WriteLn('3 - Imprimir a lista do primeiro ao ultimo elemento');
     WriteLn('4 - Imprimir a lista do ultimo ao primeiro elemento');
     WriteLn('5 - Removendo o elemento mais antigo da fila');
+    WriteLn('6 - Inserir um elemento na lista com prioridade');
     WriteLn('0 - Sair do programa'); // Adicionando uma opção para sair do programa
     Write('Digite sua escolha: ');
     ReadLn(choice);
@@ -193,46 +247,58 @@ begin
     // Simulando um switch case
     case choice of
       1:
-        begin 
+        begin
           clrscr;
           WriteLn('Inserindo um numero no inicio da lista:');
-          WriteLn('Digite um numero:'); // Adicionando uma opção para sair do programa
+          WriteLn('Digite um numero:');
           ReadLn(item_value);
-          AddInBeginList(list_global, item_value);
+          AddInBeginList(list_global, item_value, False);
         end;
       2:
-        begin 
+        begin
           clrscr;
           WriteLn('Inserindo um numero no final da lista:');
-          WriteLn('Digite um numero:'); // Adicionando uma opção para sair do programa
+          WriteLn('Digite um numero:');
           ReadLn(item_value);
-          AddInEndList(list_global, item_value);
+          AddInEndList(list_global, item_value, False);
         end;
-      3: 
-        begin 
+      3:
+        begin
           clrscr;
           WriteLn('Imprimindo lista do primeiro ao ultimo elemento:');
           PrintListBeginEnd(list_global);
           WriteLn();
           WriteLn('------------------------------------');
         end;
-      4: 
-        begin 
+      4:
+        begin
           clrscr;
           WriteLn('Imprimindo lista do ultimo ao primeiro elemento:');
           PrintListEndBegin(list_global);
           WriteLn();
           WriteLn('------------------------------------');
         end;
-      5: 
-        begin 
+      5:
+        begin
           clrscr;
           WriteLn('Removendo o elemento mais antigo:');
           RemoveBeginList(list_global);
           WriteLn();
           WriteLn('------------------------------------');
         end;
-      0: WriteLn('Saindo do programa...');
+      6:
+        begin
+          clrscr;
+          WriteLn('Inserindo elemento com prioridade:');
+          WriteLn('Digite um numero:');
+          ReadLn(item_value);
+          AddInListWithPriority(list_global, item_value);
+        end;
+      0:
+        begin
+          WriteLn('Saindo do programa...');
+          FreeList(list_global); // Liberar memória ao sair do programa
+        end;
     else
       WriteLn('Opção inválida.');
     end;
